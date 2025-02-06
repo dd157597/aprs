@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <title>APRS密码生成器</title>
+    <meta name="description" content="This is a web-based tool to generate passcodes for the APRS-IS network with your amateur radio 呼号."/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        new Vue({
+          el: '#container',
+          data: {
+            呼号: "",
+            passcode: ""
+          },
+          methods: {
+            getPasscode(呼号) {
+              if((/^[a-zA-Z0-9-]+$/).test(呼号)){
+                呼号 = 呼号.toUpperCase();
+                let i = 0;
+                let tmp_code = 29666;
+                while(i < 呼号.length){
+                  // ^ = XOR Operation
+                  tmp_code = tmp_code ^ 呼号.charCodeAt(i) * 256;
+                  tmp_code = tmp_code ^ 呼号.charCodeAt(i+1);
+                  i += 2;
+                }
+                tmp_code = tmp_code & 32767;
+                this.passcode = tmp_code;
+              }
+              else{
+                this.passcode = "";
+                alert("Invalid 呼号, Try Again!");
+                this.呼号 = "";
+              }
+            }
+          }
+        })
+      })
+    </script>
+
+    <style type="text/css">
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        background-color: #cfcbcb;
+      }
+      label {
+        width: 100%;
+        font-weight: bold;
+      }
+      #container {
+        margin: 0 auto;
+        width: 400px;
+        padding: 10px;
+        border: 1px solid #020202;
+        background-color: #ffffffdc;
+      }
+      #passcode {
+        font-size: 16px;
+      }
+    </style>
+
+</head>
+<body>
+
+  <div id="container">
+    <h2>APRS密码生成器</h2>
+    <p>输入您的业余无线电呼号以获得APRS-IS网络的密码。</p>
+    <form  v-on:submit.prevent="getPasscode(呼号)" >
+      <label for="呼号"><b>呼号:</b></label>
+      <input  v-model=呼号 type="text" id="呼号" name="呼号">
+      <button  v-on:click="getPasscode(呼号)" type="button">获取密码！</button>
+      <p id="passcode"><b>你的密码: {{ passcode }}</b></p>
+    </form>
+    <p>源代码在<a href="https://github.com/dd157597/aprs" title="Github" target="_blank" rel="noopener">Github</a></p>
+  </div>
+
+</body>
+</html>
